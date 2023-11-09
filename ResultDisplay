@@ -260,7 +260,6 @@ const stencilArray = results.filter(obj =>
   ])}
    </ol>
     </td>
-   
     <td>
     <ol type='none'>
     {evaluatingArray.map((obj, index) => [
@@ -309,8 +308,8 @@ const stencilArray = results.filter(obj =>
     <td>{dept[department]}</td>
     <td>
        {evaluatingArray.map((obj, index) => [
-  obj.courseName,
-    index < evaluatingArray.length - 1 && <br key={index} />,
+     <strong>{obj.courseName}</strong>,
+    index < evaluatingArray.length - 1  && ', '
   ])} 
     </td>
     <td> 
@@ -323,14 +322,14 @@ const stencilArray = results.filter(obj =>
     <td></td>
     <td>
     {evaluatingArray.map((obj, index) => [
-    obj.numStudents,
+    obj.numStudents.toLocaleString('bn-BD'),
     index < evaluatingArray.length - 1 && <br key={index} />,
   ])} 
     </td>
     <td></td>
     <td>
     {evaluatingArray.map((obj, index) => [
-    obj.numHours,
+    obj.numHours.toLocaleString('bn-BD'),
     index < evaluatingArray.length - 1 && <br key={index} />,
   ])} 
     </td>
