@@ -152,6 +152,27 @@ const vivaArray = results.filter(obj =>
 const stencilArray = results.filter(obj =>
   Array.isArray(obj.panelType) && obj.panelType.includes("Stencil")
 );
+const translationArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Translation")
+);
+const moderationArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Question Moderation")
+);
+const thesis_project_reportArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Thesis/Project/Report Evaluation")
+);
+const exerciseArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Exercise")
+);
+const tabulationArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Tabulation")
+);
+const comittee_chiefArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Exam Committee Chief's Remuneration")
+);
+const supervisorArray = results.filter(obj =>
+  Array.isArray(obj.panelType) && obj.panelType.includes("Remuneration of Supervisor(M.Phil/PhD)")
+);
 
 
   return (
@@ -287,6 +308,38 @@ const stencilArray = results.filter(obj =>
   </tr>
 )}
 
+{/*translation*/}
+{translationArray.length === 0 && (
+          <tr>
+            <td>অনুবাদ</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+        {/*moderation*/}
+{moderationArray.length === 0 && (
+          <tr>
+            <td>প্রশ্নপত্র পরিমার্জনা</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
 {/* evaluating answerscripts */}
 {evaluatingArray.length === 0 && (
           <tr>
@@ -361,9 +414,106 @@ const stencilArray = results.filter(obj =>
         )}
 
         {/* VivaExam*/}
-{labArray.length === 0 && (
+{vivaArray.length === 0 && (
           <tr>
             <td>মৌখিক পরীক্ষা</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+              {/*thesis/project/report evaluation*/}
+{thesis_project_reportArray.length === 0 && (
+          <tr>
+            <td>থিসিস/প্রজেক্ট/রিপোর্ট মূল্যায়ন</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+                      {/*exercise*/}
+{exerciseArray.length === 0 && (
+          <tr>
+            <td>অনুশীলনী</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+                             {/*tabulation*/}
+{tabulationArray.length === 0 && (
+          <tr>
+            <td>টেবুলেশন</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+                                    {/*stencil*/}
+{stencilArray.length === 0 && (
+          <tr>
+            <td>স্টেনসিল কাটা</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+     
+
+                                        {/*exam_committee_chief*/}
+{comittee_chiefArray.length === 0 && (
+          <tr>
+            <td>কমিটির সভাপতির পারিতোষিক</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            
+          </tr>
+        )}
+
+                                            {/*supervisor*/}
+{supervisorArray.length === 0 && (
+          <tr>
+            <td>তত্ত্বাবধায়ক সম্মানী(এম. ফিল/ পিএইচ.ডি)</td>
             <td></td>
             <td></td>
             <td></td>
@@ -387,11 +537,10 @@ const stencilArray = results.filter(obj =>
                <td class="left-aligned" colspan="7">খরচের রশিদ সংযুক্ত করতে হবে</td>
                </tr>
               
-                <tr >
-                <td class="right-aligned" colSpan="8" >মোট টাকা</td>
-                <td class="text-center">৳ {totalResult.toLocaleString('bn-BD')}
-                </td>
-                </tr>
+               <tr>
+                <td colSpan="8" className="no-border right-aligned">মোট টাকা</td>
+                <td className="text-center">৳ {totalResult.toLocaleString('bn-BD')}</td>
+              </tr>
                 </tbody>
                 </table>
                  </div>
