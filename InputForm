@@ -1,1 +1,559 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import './input.css';
+
+function InputForm(props) {
+  const navigate = useNavigate();
+  
+  const [selectedSemester, setSelectedSemester] = useState("1st Year 1st Semester");
+  const [currentSemester, setCurrentSemester] = useState();
+  const [selectedDepartment, setSelectedDepartment] = useState("Computer Science and Engineering");
+  const [selectedType, setSelectedType] = useState("Hons");
+  const [selectName,setSelectedName]=useState(props.name);
+  const [inputData, setInputData] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]); 
+  const [selectedCoursesBySemester, setSelectedCoursesBySemester] = useState({});
+  
+
+  
+  const addCoursePanel = (courseName) => {
+    const courseCode = courseToCodeMapping[courseName];
+    const newPanel = {
+      panelType:"",
+      type: "",
+      courseName,
+      courseCode,
+      numStudents: 0,
+      numHours: 0,
+      daysOfExam: "",
+    };
+    setInputData((prevData) => [...prevData, newPanel]);
+  };
+
+  const removeCoursePanel = (courseName) => {
+    setInputData((prevData) => prevData.filter((panel) => panel.courseName !== courseName));
+  };
+
+  const handleCourseChange = (e) => {
+    const selectedCourse = e.target.value;
+    const isChecked = e.target.checked;
+
+    setSelectedCoursesBySemester((prevSelectedCourses) => ({
+      ...prevSelectedCourses,
+      [currentSemester]: isChecked
+        ? [...(prevSelectedCourses[currentSemester] || []), selectedCourse]
+        : (prevSelectedCourses[currentSemester] || []).filter((course) => course !== selectedCourse),
+    }));
+
+    if (isChecked) {
+      setSelectedCourses([...selectedCourses, selectedCourse]);
+      addCoursePanel(selectedCourse);
+    } else {
+      setSelectedCourses(selectedCourses.filter((course) => course !== selectedCourse));
+      removeCoursePanel(selectedCourse);
+    }
+  };
+
+  const handleSemesterChange = (newSemester) => {
+    setSelectedSemester(newSemester);
+    setCurrentSemester(newSemester);
+    setInputData([]);
+    setSelectedCourses([]); // Clear the selected courses when the semester changes
+  }; 
+  
+  const handlePanelTypeChange = (e, panelType,index) => {
+    const { checked } = e.target;
+    const newInputData = [...inputData];
+  
+    // If the checkbox is checked, add the panelType to the array
+    if (checked) {
+      newInputData[index] = {
+        ...newInputData[index],
+        panelType: [...newInputData[index].panelType, panelType],
+      };
+    } else {
+      // If the checkbox is unchecked, remove the panelType from the array
+      newInputData[index] = {
+        ...newInputData[index],
+        panelType: newInputData[index].panelType.filter((type) => type !== panelType),
+      };
+    }
+  
+    setInputData(newInputData);
+  };
+  
+
+
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target;
+    const newInputData = [...inputData];
+   
+
+    if (name === "numStudents"|| name === "numHours") {
+      // Remove the old values for numStudents or numHours
+      delete newInputData[index][name];
+      setInputData(newInputData);
+    }
+    if (name === "stencilPages") {
+      const newValue = parseInt(value, 10);
+      if (!isNaN(newValue) && newValue >= 1 && newValue <= 3) {
+        newInputData[index] = { ...newInputData[index], [name]: newValue };
+        setInputData(newInputData);
+      } else {
+        console.error("Invalid number of Stencil pages. Enter a number between 1 and 3.");
+      }
+    }
+
+    if (name === "daysOfExam" ) {
+        const newValue = parseInt(value,10);
+        if( !isNaN(newValue)&& newValue >= 1 && newValue <= 4){
+        newInputData[index] = { ...newInputData[index], [name]: newValue };
+        setInputData(newInputData);
+        }
+        else {
+          console.error("Selecting Days Of Exam is manadatory.");
+        }
+    }
+    
+    if (name === "numHours" || name === "daysOfExam") {
+      const newValue = parseInt(value, 10);
+      if (!isNaN(newValue) && newValue >= 1 && newValue <= 4) {
+        newInputData[index] = { ...newInputData[index], [name]: newValue };
+        setInputData(newInputData);
+      } else {
+        console.error("Invalid input. Enter a number between 1 and 4.");
+      }
+    }
+
+    if (name === "numHours") {
+      const newValue = parseInt(value, 10);
+      if (!isNaN(newValue) && newValue >= 1 && newValue <= 4) {
+        newInputData[index] = { ...newInputData[index], [name]: newValue };
+        setInputData(newInputData);
+      } else {
+        console.error("Invalid number of hours. Enter a number between 1 and 4.");
+      }
+    } else if (name === "numStudents") {
+      if (inputData[index].panelType === "Evaluating Answer Scripts" && value === "") {
+        newInputData[index] = { ...newInputData[index], [name]: value };
+        setInputData(newInputData);
+        alert("Number of Students is mandatory for Evaluating Answer Scripts.");
+      } else {
+        newInputData[index] = { ...newInputData[index], [name]: value };
+        setInputData(newInputData);
+      }
+    } else if (name === "tabulationType" || name === "tabulationSemester") {
+      newInputData[index] = { ...newInputData[index], [name]: value };
+      setInputData(newInputData);
+    } else {
+      newInputData[index] = { ...newInputData[index], [name]: value };
+      setInputData(newInputData);
+    }
+  };
+   
+ 
+  
+ 
+
+  const handleCalculate = () => {
+    if (inputData.some(data => data.panelType === "Evaluating Answer Scripts" && data.numStudents === 0)) {
+     alert("Number of Students is mandatory for Evaluating Answer Scripts.");
+      return;
+    }
+    
+    if (inputData.some(data => data.panelType === "Evaluating Answer Scripts" && data.numHours === 0)) {
+      alert("Number of Hours is mandatory for Evaluating Answer Scripts.");
+      return;
+    }
+
+    if (inputData.some(data => data.panelType === "Viva Exam" && data.numStudents === 0)) {
+      alert("Number of Students is mandatory for Viva Exam.");
+      return;
+    }
+ 
+
+    if (inputData.some(data => data.panelType === "Lab Exam" && data.numHours === 0)) {
+      alert("Number of Hours is mandatory for Lab Exam.");
+      return;
+    }
+
+    if (inputData.some(data => data.panelType === "Lab Exam" && data.daysOfExam === "--")) {
+      alert("Number of Days is mandatory for Lab Exam.");
+      return;
+    }
+
+    if (inputData.some(data => data.panelType === "Stencil" && data.stencilPages === "--")) {
+      alert("Number of Pages is mandatory for Stencil.");
+      return;
+    }
+
+    if (inputData.some(data => data.panelType === "Making Question Paper" && data.numHours === 0)) {
+      alert("Number of Hours is mandatory for Making Question Paper.");
+      return;
+    }
+
+    const results = inputData.map((data) => {
+      let result = 0;
+     
+      if (data.panelType === "Evaluating Answer Scripts" || data.panelType === "Viva Exam") {
+        if (data.numStudents === 0) {
+          alert("Number of Students is mandatory for Evaluating Answer Scripts/Viva Exam.");
+        } 
+      } 
+   
+      return { ...data, result };
+    });
+
+    console.log("Results after calculation:", results);
+    const panelType = inputData[0].panelType;
+    const department = encodeURIComponent(selectedDepartment);
+    const semester = encodeURIComponent(selectedSemester);
+    const name=encodeURIComponent(selectName);
+    const type=encodeURIComponent(selectedType);
+    console.log("Panel Type:", panelType);
+
+    navigate(`/result?results=${JSON.stringify(results)}&panelType=${inputData[0].panelType}&department=${department}&semester=${semester}&name=${name}&type=${type}`);
+  };
+
+  const courseOptions = {
+    "Computer Science and Engineering": [
+      "Algorithms-I",
+      "Algorithms-I-Lab",
+      "Electronic Circuits",
+      "Numerical Methods",
+      "Web Design and Programming Laboratory-I",
+      "Technical Writing and Presentations",
+      "Database Systems",
+      "Computational Geometry",
+      "Structured Programming Language",
+      "Java",
+    ],
+  };
+
+  const courseToCodeMapping = {
+    "Structured Programming Language":"CSE-105",
+    "Structured Programming Language-Lab": "CSE-106",
+    "Data Structures":"CSE 153",
+    "Data Structures Lab":"CSE 154",
+    "Discrete Mathematics":"CSE-155",
+    "Algorithms-I": "CSE-209",
+    "Algorithms-I-Lab": "CSE-210",
+    "Electronic Circuits": "CSE-107",
+    "Numerical Methods": "CSE-205",
+    "Web Design and Programming Laboratory-I":"CSE-312",
+    "Technical Writing and Presentations":"CSE-112",
+    "Database Systems":"CSE-255",
+    "Computational Geometry":"CSE-305",
+    "Java":"CSE-212",
+    "Operating Systems":"CSE-309",
+    "Operating Systems Lab":"CSE-310",
+   
+  };
+
+  const semesterToCoursesMapping = {
+    "1st Year 1st Semester": [
+      "Structured Programming Language",
+      "Structured Programming Language-Lab",
+      "Electronic Circuits",
+  
+    ],
+    "1st Year 2nd Semester": [
+      "Data Structures",
+      "Data Structures Lab",
+      "Discrete Mathematics",
+      "Technical Writing and Presentations"
+    ],
+
+    "2nd Year 1st Semester": [
+      "Algorithms-I",
+      "Algorithms-I-Lab",
+      "Numerical Methods",
+      "Java",
+    ],
+
+    "3rd Year 1st Semester": [
+      "Web Design and Programming Laboratory-I",
+      "Computational Geometry",
+      "Operating Systems",
+      "Operating Systems Lab",
+    ],
+   
+  };
+
+  const courseOptionsForSelectedSemester = semesterToCoursesMapping[selectedSemester] || [];
+  
+  
+  return (
+    <div className="container mt-4">
+      <div className="boundary">
+      <div className="form-group select-container">
+        <label htmlFor="selectedDepartment">Select Department:</label>
+        <select
+          className="form-control"
+          aria-label="Disabled select example" disabled
+          id="selectedDepartment"
+          value={selectedDepartment}
+        >
+          <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+        </select>
+      </div>
+
+      <div className="form-group select-container">
+        <label htmlFor="selectName">Name:</label>
+        <select
+          className="form-control"
+          aria-label="Disabled select example" disabled
+          id="selectedDepartment"
+          value={selectName}
+        >
+          <option value={props.name}>{props.name}</option>
+        </select>
+      </div>
+       
+      <div className="form-group select-container">
+        <label htmlFor="selectedCourseType">Select Type:</label>
+        <select
+          className="form-select form-select-lg mb-3"
+          id="selectedType"
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+        >
+          <option value="Hons">Hons</option>
+          <option value="Msc">Msc</option>
+  
+        </select>
+      </div>
+    
+     
+      <div className="form-group select-container">
+         <label htmlFor="selectedSemester" >Select Semester:</label>
+         <select
+          className="form-select form-select-lg mb-3"
+         
+          id="selectedSemester"
+          value={selectedSemester}
+          onChange={(e) => {
+            setSelectedSemester(e.target.value);
+            setCurrentSemester(e.target.value); // Update current semester when selected
+            setInputData([]); // Clear panels when the semester changes
+          }}
+        >
+          <option value="1st Year 1st Semester">1st Year 1st Semester</option>
+           <option value="1st Year 2nd Semester">1st Year 2nd Semester</option>
+           <option value="2nd Year 1st Semester">2nd Year 1st Semester</option>
+           <option value="2nd Year 2nd Semester">2nd Year 2nd Semester</option>
+           <option value="3rd Year 1st Semester">3rd Year 1st Semester</option>
+           <option value="3rd Year 2nd Semester">3rd Year 2nd Semester</option>
+           <option value="4th Year 1st Semester">4th Year 1st Semester</option>
+           <option value="4th Year 2nd Semester">4th Year 2nd Semester</option>
+         </select>
+         </div>
+         
+
+         <div className="form-group select-container">
+  <label style={{marginTop:'20px'}} htmlFor="courseSelect">Select Courses:</label>
+  <div className="course-checkboxes">
+    {courseOptionsForSelectedSemester.map((course, optionIndex) => (
+      <label key={optionIndex} className="checkbox-label"> 
+       <div style={{display:'flex',flex:'wrap',alignContent:'center'}}>
+       <div style={{margin:'30px'}}> 
+        <input
+          type="checkbox"
+          name="selectedCourse"
+          value={course}
+          onChange={handleCourseChange}
+          checked={selectedCourses.includes(course)}
+          className="checkbox-input"
+        />
+        </div>
+        <div style={{margin:'3px',padding:'24px',fontSize:'24px'}}>
+        {course}
+        </div>
+        </div>
+      </label>
+      
+     
+    ))}
+  </div>
+</div>
+       
+
+      {selectedCourses.length > 0 && (
+      <div className="panel-border" >
+      <div className="row d-flex justify-content-center">
+        {inputData.map((data, index) => (
+          <div key={index} className="col-md-12 mb-2">
+            <div className="p-3 my-2">
+              <h3 style={{margin:'25px',paddingBottom:'40px',fontSize:'30px',textAlign:'center',fontWeight:'bold',color:'white'}}> {data.courseName} ({data.courseCode})</h3>
+              
+            
+   <div className="form-group select-container">
+  <label style={{marginTop:'30px'}} htmlFor={`courseName${index}`}>Course Name:</label>
+  <input
+    type="text"
+    className="form-control"
+    style={{height:'50px',fontSize:'20px'}}
+    aria-label="Disabled select example" disabled
+    id={`courseName${index}`}
+    name="courseName"
+    value={data.courseName}
+    readOnly
+  />
+  </div>
+
+<div className="form-group select-container">
+  <label htmlFor={`courseCode${index}`}>Course Code:</label>
+  <input
+    type="text"  
+    className="form-control"
+    style={{height:'50px',fontSize:'20px'}}
+    aria-label="Disabled select example" disabled
+    id={`courseCode${index}`}
+    name="courseCode"
+    value={data.courseCode}
+    readOnly
+  />
+</div>
+<div className="form-group checkbox-container criteriaSelectHeading">
+  <label>Criteria Of Work :</label>
+  <div className="criteriaSelect">
+  <div className="column-container">
+  {["Making Question Paper", "Evaluating Answer Scripts", "Question Moderation", "Lab Exam", "Viva Exam", "Stencil"].map((panelType, idx) => (
+    <div key={idx} className="column-item">
+      <div className="criteriaSelectCheckbox"style={{display:'flex',flex:'wrap'}}>
+        <div classname="criteriaCheckbox">
+      <input
+        type="checkbox"
+        id={`panelType${idx}`}
+        name="panelType"
+        value={panelType}
+        checked={data.panelType.includes(panelType)}
+        onChange={(e) => handlePanelTypeChange(e, panelType,index)}
+        className="checkbox-input" 
+         style={{ margin: '15px',width:'30px',height:'30px',}}
+      />
+      </div>
+      <div classname="criteriaCheckbox" style={{ margin: '9px'}}>
+      <label htmlFor={`panelType${idx}`} style={{fontSize:'22px',cursor:'pointer'}}>{panelType}</label>
+      </div>
+      </div>
+    </div>
+  ))}
+  </div>
+</div>
+</div>
+
+
+{data.panelType.includes("Stencil") ? (
+  <div className="form-group select-container">
+    <label htmlFor={`stencilPages${index}`}>Number of Stencil Pages (1-3):</label>
+    <select
+      type="number"
+      className="form-select form-select-lg mb-3"
+      id={`stencilPages${index}`}
+      name="stencilPages"
+      value={data.stencilPages}
+      required
+      onChange={(e) => handleInputChange(e, index)}
+      
+    >
+      <option value="0">--</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+  </div>
+) : null}
+
+{data.panelType.includes("Evaluating Answer Scripts") || data.panelType.includes("Viva Exam") ? (
+  // Render "Number of Students" field for other criteria, if needed
+  <div className="form-group select-container">
+    <label htmlFor={`numStudents${index}`}>Number of Students:</label>
+    <select
+      type="number"
+      className={`form-select form-select-lg mb-3${data.panelType.includes("Evaluating Answer Scripts") || data.panelType.includes("Viva Exam") ? " mandatory" : ""}`}
+      id={`numStudents${index}`}
+      name="numStudents"
+      value={data.numStudents}
+      onChange={(e) => handleInputChange(e, index)}
+    >
+      <option value="0">0</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="31">31</option>
+      <option value="32">32</option>
+      <option value="33">33</option>
+      <option value="34">34</option>
+      <option value="35">35</option>
+      <option value="36">36</option>
+      <option value="37">37</option>
+      <option value="38">38</option>
+    </select>
+  </div>
+) : null}
+
+<div className="form-group select-container">
+                <label htmlFor={`numHours${index}`}>Number of Hours of Exam:</label>
+                 <select
+                  type="number"
+                  className="form-select form-select-lg mb-3"
+                  id={`numHours${index}`}
+                  name="numHours"
+                  value={data.numHours}
+                  onChange={(e) => handleInputChange(e, index)}
+                > 
+                  <option value="0">--</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+
+                </select>
+                
+              </div>
+
+{data.panelType.includes("Lab Exam") ? (
+  <div className="form-group select-container">
+    <label htmlFor={`daysOfExam${index}`}>Days of Exam:</label>
+    <select
+      type="number"
+      className="form-select form-select-lg mb-3"
+      id={`daysOfExam${index}`}
+      name="daysOfExam"
+      value={data.daysOfExam}
+      onChange={(e) => handleInputChange(e, index)}
+      required
+    >
+      <option value="0">--</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </div>
+) : null}
+
+            </div>
+          </div>
+        ))}
+      </div>
+      </div>
+       )}
+      <div className="text-center"> {/* Center-align the button */}
+        <button className="btn btn-primary btn-lg calculate-button" onClick={handleCalculate}>
+          Prepare My Bill
+        </button>
+      </div>
+    </div>
+    </div>
+  );
+}
+
+export default InputForm;
+
+
 
